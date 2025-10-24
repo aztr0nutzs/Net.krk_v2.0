@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERPUNK NETWORK SECURITY DASHBOARD</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <!-- Holographic Header -->
+    <header class="cyber-header">
+        <div class="header-content">
+            <h1 class="holographic-title">
+                <span class="glitch" data-text="CYBERPUNK">CYBERPUNK</span>
+                <span class="subtitle">NETWORK SECURITY DASHBOARD</span>
+            </h1>
+            <div class="system-status">
+                <div class="status-indicator" id="systemStatus">
+                    <div class="pulse-dot"></div>
+                    <span>SYSTEM ONLINE</span>
+                </div>
+                <div class="status-info">
+                    <span id="cpuUsage">CPU: 0%</span>
+                    <span id="memoryUsage">RAM: 0%</span>
+                    <span id="activeOps">OPS: 0</span>
+                </div>
+            </div>
+        </div>
+        <div class="scanning-line"></div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Left Panel - Controls -->
+        <aside class="left-panel">
+            <div class="panel-section">
+                <h3 class="section-title">NETWORK SCANNING</h3>
+                <div class="control-group">
+                    <label for="ipRange">IP Range:</label>
+                    <input type="text" id="ipRange" value="192.168.1.0/24" class="cyber-input">
+                    <button id="scanNetwork" class="cyber-button primary">
+                        <span class="button-glow"></span>
+                        SCAN NETWORK
+                    </button>
+                </div>
+                <div class="scan-progress" id="scanProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">Scanning...</span>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">ATTACK MODULES</h3>
+                <div class="attack-grid">
+                    <button class="attack-button" data-type="arp_spoofing">
+                        <div class="attack-icon">ARP</div>
+                        <span>ARP Spoofing</span>
+                    </button>
+                    <button class="attack-button" data-type="mitm">
+                        <div class="attack-icon">MITM</div>
+                        <span>Man-in-Middle</span>
+                    </button>
+                    <button class="attack-button" data-type="password_sniffing">
+                        <div class="attack-icon">PWD</div>
+                        <span>Password Sniff</span>
+                    </button>
+                    <button class="attack-button" data-type="syn_flood">
+                        <div class="attack-icon">SYN</div>
+                        <span>SYN Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="udp_flood">
+                        <div class="attack-icon">UDP</div>
+                        <span>UDP Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="icmp_flood">
+                        <div class="attack-icon">ICMP</div>
+                        <span>ICMP Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="http_flood">
+                        <div class="attack-icon">HTTP</div>
+                        <span>HTTP Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="dns_spoofing">
+                        <div class="attack-icon">DNS</div>
+                        <span>DNS Spoof</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">ACTIVE OPERATIONS</h3>
+                <div class="operations-list" id="operationsList">
+                    <div class="no-operations">No active operations</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center - 3D Network Map -->
+        <main class="center-panel">
+            <div class="network-map-container">
+                <canvas id="networkCanvas" class="network-canvas"></canvas>
+                <div class="map-overlay">
+                    <div class="map-controls">
+                        <button id="resetView" class="control-button">RESET VIEW</button>
+                        <button id="toggleWireframe" class="control-button">WIREFRAME</button>
+                        <button id="toggleLabels" class="control-button">LABELS</button>
+                    </div>
+                    <div class="map-info">
+                        <span id="deviceCount">Devices: 0</span>
+                        <span id="selectedDevice">Selected: None</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panel - Device Info -->
+        <aside class="right-panel">
+            <div class="panel-section">
+                <h3 class="section-title">DEVICE INFORMATION</h3>
+                <div class="device-info" id="deviceInfo">
+                    <div class="no-selection">
+                        <div class="info-icon">🔍</div>
+                        <p>Select a device from the network map to view details</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">QUICK ACTIONS</h3>
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="action-button" id="startArpSpoof">
+                        <span class="action-icon">⚡</span>
+                        ARP Spoof
+                    </button>
+                    <button class="action-button" id="startMitm">
+                        <span class="action-icon">🎯</span>
+                        MITM Attack
+                    </button>
+                    <button class="action-button" id="startSniffing">
+                        <span class="action-icon">👁️</span>
+                        Monitor Traffic
+                    </button>
+                    <button class="action-button" id="startFlood">
+                        <span class="action-icon">💥</span>
+                        Flood Attack
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">SYSTEM LOGS</h3>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry system">
+                        <span class="log-time">[00:00:00]</span>
+                        <span class="log-message">System initialized</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Bottom Bar - Event Feed -->
+    <footer class="bottom-bar">
+        <div class="event-feed" id="eventFeed">
+            <div class="feed-item">
+                <span class="feed-time">[00:00:00]</span>
+                <span class="feed-message">Dashboard online - Ready for operations</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Attack Configuration Modal -->
+    <div class="modal-overlay" id="attackModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Configure Attack</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content based on attack type -->
+            </div>
+            <div class="modal-footer">
+                <button class="cyber-button secondary" id="modalCancel">CANCEL</button>
+                <button class="cyber-button primary" id="modalConfirm">EXECUTE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div class="modal-overlay" id="confirmModal" style="display: none;">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="cyber-button secondary" id="confirmCancel">CANCEL</button>
+                <button class="cyber-button danger" id="confirmYes">YES, PROCEED</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltips -->
+    <div class="tooltip" id="tooltip" style="display: none;">
+        <div class="tooltip-content"></div>
+        <div class="tooltip-arrow"></div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
