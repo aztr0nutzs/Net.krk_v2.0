@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERPUNK NETWORK SECURITY DASHBOARD v2.0</title>
+    <style>
+        :root {
+            /* Enhanced Color Palette */
+            --bg-primary: #050510;
+            --bg-secondary: #080818;
+            --terminal-bg: #000000;
+            --neon-cyan: #00F6FF;
+            --neon-cyan-glow: #00E8F2;
+            --neon-magenta: #FF00D4;
+            --neon-magenta-glow: #FF00FF;
+            --purple-ui: #7A00FF;
+            --purple-ui-glow: #B700FF;
+            --soft-blue: #5CCEFF;
+            --muted-gray: #C7C7C7;
+            --warning: #FF4A4A;
+            --matrix-green: #00FF41;
+            
+            /* Typography */
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+            --font-mono: 'Courier New', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(122, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 246, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--muted-gray);
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Network Grid Background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 246, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 246, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Data Stream Effect */
+        .data-stream {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .stream {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, var(--neon-cyan), transparent);
+            opacity: 0.3;
+            animation: streamFall linear infinite;
+        }
+
+        @keyframes streamFall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        /* Enhanced Holographic Header */
+        .cyber-header {
+            background: rgba(5, 5, 16, 0.9);
+            border-bottom: 1px solid var(--purple-ui);
+            box-shadow: 
+                0 0 30px rgba(122, 0, 255, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding: 1.5rem 2rem;
+            backdrop-filter: blur(15px);
+            border-radius: 0 0 10px 10px;
+            margin: 0 10px;
+            border: 1px solid var(--purple-ui);
+            border-top: none;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+        }
+        
+        .holographic-title {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .glitch {
+            font-family: var(--font-heading);
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            position: relative;
+            text-shadow: 
+                0 0 10px var(--neon-cyan-glow),
+                0 0 20px var(--neon-cyan-glow),
+                0 0 30px var(--neon-cyan-glow);
+            animation: glitch 5s infinite;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch::before {
+            left: 3px;
+            text-shadow: -3px 0 var(--neon-magenta);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -3px;
+            text-shadow: -3px 0 var(--soft-blue);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch {
+            0%, 12%, 15%, 52%, 55%, 82%, 85%, 100% { opacity: 1; transform: translateX(0); }
+            13% { opacity: 0.8; transform: translateX(-5px); }
+            14% { opacity: 0.8; transform: translateX(5px); }
+            53% { opacity: 0.8; transform: translateX(5px) translateY(-3px); }
+            54% { opacity: 0.8; transform: translateX(-5px) translateY(3px); }
+            83% { opacity: 0.8; transform: translateX(3px) translateY(-5px); }
+            84% { opacity: 0.8; transform: translateX(-3px) translateY(5px); }
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(42px, 9999px, 44px, 0); }
+            5% { clip: rect(12px, 9999px, 59px, 0); }
+            10% { clip: rect(48px, 9999px, 29px, 0); }
+            15% { clip: rect(42px, 9999px, 73px, 0); }
+            20% { clip: rect(63px, 9999px, 27px, 0); }
+            25% { clip: rect(34px, 9999px, 55px, 0); }
+            30% { clip: rect(86px, 9999px, 73px, 0); }
+            35% { clip: rect(20px, 9999px, 20px, 0); }
+            40% { clip: rect(26px, 9999px, 60px, 0); }
+            45% { clip: rect(25px, 9999px, 66px, 0); }
+            50% { clip: rect(57px, 9999px, 98px, 0); }
+            55% { clip: rect(5px, 9999px, 46px, 0); }
+            60% { clip: rect(82px, 9999px, 31px, 0); }
+            65% { clip: rect(54px, 9999px, 27px, 0); }
+            70% { clip: rect(28px, 9999px, 99px, 0); }
+            75% { clip: rect(45px, 9999px, 69px, 0); }
+            80% { clip: rect(23px, 9999px, 85px, 0); }
+            85% { clip: rect(54px, 9999px, 84px, 0); }
+            90% { clip: rect(45px, 9999px, 47px, 0); }
+            95% { clip: rect(37px, 9999px, 20px, 0); }
+            100% { clip: rect(4px, 9999px, 91px, 0); }
+        }
+        
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            15% { clip: rect(75px, 9999px, 5px, 0); }
+            20% { clip: rect(67px, 9999px, 61px, 0); }
+            25% { clip: rect(14px, 9999px, 79px, 0); }
+            30% { clip: rect(1px, 9999px, 66px, 0); }
+            35% { clip: rect(86px, 9999px, 30px, 0); }
+            40% { clip: rect(23px, 9999px, 98px, 0); }
+            45% { clip: rect(85px, 9999px, 72px, 0); }
+            50% { clip: rect(71px, 9999px, 75px, 0); }
+            55% { clip: rect(2px, 9999px, 48px, 0); }
+            60% { clip: rect(30px, 9999px, 16px, 0); }
+            65% { clip: rect(59px, 9999px, 50px, 0); }
+            70% { clip: rect(41px, 9999px, 62px, 0); }
+            75% { clip: rect(2px, 9999px, 82px, 0); }
+            80% { clip: rect(47px, 9999px, 73px, 0); }
+            85% { clip: rect(3px, 9999px, 27px, 0); }
+            90% { clip: rect(26px, 9999px, 55px, 0); }
+            95% { clip: rect(42px, 9999px, 97px, 0); }
+            100% { clip: rect(38px, 9999px, 49px, 0); }
+        }
+        
+        .subtitle {
+            font-family: var(--font-body);
+            font-size: 1.3rem;
+            color: var(--soft-blue);
+            letter-spacing: 3px;
+            margin-top: 0.5rem;
+            text-shadow: 
+                0 0 5px rgba(92, 206, 255, 0.7),
+                0 0 10px rgba(92, 206, 255, 0.5);
+        }
+        
+        .system-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .pulse-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--neon-cyan);
+            box-shadow: 
+                0 0 10px var(--neon-cyan-glow),
+                0 0 20px var(--neon-cyan-glow);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 246, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(0, 246, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 246, 255, 0); }
+        }
+        
+        .status-indicator span {
+            font-family: var(--font-body);
+            font-weight: 600;
+            color: var(--muted-gray);
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(199, 199, 199, 0.5);
+        }
+        
+        .status-info {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .status-info span {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            color: var(--soft-blue);
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(92, 206, 255, 0.5);
+        }
+        
+        .scanning-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scan 3s linear infinite;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Enhanced Dashboard Container */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 25px;
+            padding: 25px;
+            height: calc(100vh - 140px);
+        }
+        
+        /* Enhanced Panel Sections */
+        .left-panel, .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .panel-section {
+            background: rgba(8, 8, 24, 0.8);
+            border: 1px solid var(--purple-ui);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 
+                0 0 20px rgba(122, 0, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+        }
+        
+        .panel-section:hover {
+            box-shadow: 
+                0 0 30px rgba(122, 0, 255, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 0 5px rgba(0, 246, 255, 0.7),
+                0 0 10px rgba(0, 246, 255, 0.5);
+            border-bottom: 1px solid rgba(122, 0, 255, 0.5);
+            padding-bottom: 8px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 5px var(--neon-cyan);
+        }
+        
+        /* Enhanced Controls */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .control-group label {
+            font-size: 0.95rem;
+            color: var(--soft-blue);
+            text-shadow: 0 0 5px rgba(92, 206, 255, 0.5);
+        }
+        
+        .cyber-input {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--purple-ui);
+            border-radius: 5px;
+            padding: 10px 15px;
+            color: var(--muted-gray);
+            font-family: var(--font-body);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .cyber-input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 
+                0 0 10px rgba(0, 246, 255, 0.5),
+                inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .cyber-button {
+            position: relative;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            padding: 12px 18px;
+            color: var(--neon-cyan);
+            font-family: var(--font-body);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 246, 255, 0.3);
+        }
+        
+        .cyber-button:hover {
+            background: rgba(0, 246, 255, 0.1);
+            box-shadow: 
+                0 0 20px rgba(0, 246, 255, 0.7),
+                0 0 30px rgba(0, 246, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .cyber-button.primary {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+        
+        .cyber-button.secondary {
+            border-color: var(--purple-ui);
+            color: var(--purple-ui);
+        }
+        
+        .cyber-button.danger {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        
+        .cyber-button.danger:hover {
+            background: rgba(255, 74, 74, 0.1);
+            box-shadow: 
+                0 0 20px rgba(255, 74, 74, 0.7),
+                0 0 30px rgba(255, 74, 74, 0.3);
+        }
+        
+        .button-glow {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 246, 255, 0.4), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .cyber-button:hover .button-glow {
+            left: 100%;
+        }
+        
+        /* Enhanced Attack Grid */
+        .attack-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .attack-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--purple-ui);
+            border-radius: 5px;
+            padding: 15px 10px;
+            color: var(--soft-blue);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .attack-button:hover {
+            border-color: var(--neon-magenta);
+            box-shadow: 
+                0 0 15px rgba(255, 0, 212, 0.5),
+                inset 0 0 10px rgba(255, 0, 212, 0.1);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .attack-icon {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--neon-cyan);
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+        
+        /* Enhanced Network Interfaces Panel */
+        .interface-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .interface-item {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(122, 0, 255, 0.4);
+            border-radius: 5px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .interface-item:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 
+                0 0 10px rgba(0, 246, 255, 0.4),
+                inset 0 0 10px rgba(0, 246, 255, 0.1);
+        }
+        
+        .interface-name {
+            font-weight: 600;
+            color: var(--neon-cyan);
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+        
+        .interface-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .interface-details span {
+            color: var(--soft-blue);
+        }
+        
+        .monitor-toggle {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--purple-ui);
+            border-radius: 5px;
+            padding: 8px 12px;
+            color: var(--soft-blue);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .monitor-toggle:hover {
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 10px rgba(255, 0, 212, 0.4);
+        }
+        
+        .monitor-toggle.active {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 246, 255, 0.1);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 246, 255, 0.4);
+        }
+        
+        /* Enhanced Operations List */
+        .operations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        
+        .operation-item {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(122, 0, 255, 0.4);
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .operation-item:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px rgba(0, 246, 255, 0.3);
+        }
+        
+        .operation-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .operation-name {
+            color: var(--neon-cyan);
+            font-weight: 600;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+        
+        .operation-status {
+            color: var(--soft-blue);
+            font-size: 0.85rem;
+        }
+        
+        .operation-details {
+            color: var(--muted-gray);
+            font-size: 0.85rem;
+        }
+        
+        .no-operations {
+            text-align: center;
+            color: var(--soft-blue);
+            font-style: italic;
+            padding: 15px;
+        }
+        
+        /* Enhanced Center Panel - Network Map */
+        .center-panel {
+            position: relative;
+        }
+        
+        .network-map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at center, rgba(0, 246, 255, 0.05) 0%, transparent 70%),
+                var(--terminal-bg);
+            border: 1px solid var(--purple-ui);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 
+                0 0 30px rgba(122, 0, 255, 0.4),
+                inset 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+        
+        .network-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        
+        .map-controls {
+            display: flex;
+            gap: 12px;
+            pointer-events: auto;
+        }
+        
+        .control-button {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            padding: 8px 12px;
+            color: var(--neon-cyan);
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 246, 255, 0.3);
+        }
+        
+        .control-button:hover {
+            background: rgba(0, 246, 255, 0.1);
+            box-shadow: 
+                0 0 15px rgba(0, 246, 255, 0.7),
+                0 0 25px rgba(0, 246, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .map-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid var(--purple-ui);
+            box-shadow: 0 0 15px rgba(122, 0, 255, 0.3);
+        }
+        
+        .map-info span {
+            font-size: 0.9rem;
+            color: var(--soft-blue);
+            text-shadow: 0 0 5px rgba(92, 206, 255, 0.5);
+        }
+        
+        /* Enhanced Device Information */
+        .device-info {
+            min-height: 220px;
+        }
+        
+        .no-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: var(--soft-blue);
+        }
+        
+        .info-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        .device-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .device-name {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            color: var(--neon-cyan);
+            text-shadow: 
+                0 0 5px var(--neon-cyan),
+                0 0 10px var(--neon-cyan);
+        }
+        
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+        
+        .device-properties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .property {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .property-label {
+            font-size: 0.85rem;
+            color: var(--soft-blue);
+            margin-bottom: 4px;
+            text-shadow: 0 0 5px rgba(92, 206, 255, 0.5);
+        }
+        
+        .property-value {
+            font-size: 0.95rem;
+            color: var(--muted-gray);
+            font-weight: 500;
+        }
+        
+        /* Enhanced Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--purple-ui);
+            border-radius: 5px;
+            padding: 10px 15px;
+            color: var(--soft-blue);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-button:hover {
+            border-color: var(--neon-magenta);
+            box-shadow: 
+                0 0 10px rgba(255, 0, 212, 0.4),
+                inset 0 0 10px rgba(255, 0, 212, 0.1);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .action-icon {
+            font-size: 1.1rem;
+        }
+        
+        /* Enhanced Logs */
+        .log-container {
+            max-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .log-entry {
+            display: flex;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .log-entry:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .log-entry.system {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .log-entry.warning {
+            background: rgba(255, 74, 74, 0.15);
+            color: var(--warning);
+            text-shadow: 0 0 5px rgba(255, 74, 74, 0.5);
+        }
+        
+        .log-entry.success {
+            background: rgba(0, 246, 255, 0.15);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px rgba(0, 246, 255, 0.5);
+        }
+        
+        .log-time {
+            color: var(--soft-blue);
+            min-width: 75px;
+            font-family: var(--font-mono);
+        }
+        
+        .log-message {
+            color: inherit;
+            font-family: var(--font-mono);
+        }
+        
+        /* Enhanced Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(5, 5, 16, 0.9);
+            border-top: 1px solid var(--purple-ui);
+            box-shadow: 
+                0 0 20px rgba(122, 0, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            padding: 10px 25px;
+            backdrop-filter: blur(10px);
+            border-radius: 10px 10px 0 0;
+            margin: 0 10px;
+            width: calc(100% - 20px);
+            border: 1px solid var(--purple-ui);
+            border-bottom: none;
+        }
+        
+        .event-feed {
+            display: flex;
+            overflow-x: auto;
+            gap: 25px;
+        }
+        
+        .feed-item {
+            display: flex;
+            gap: 12px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        
+        .feed-time {
+            color: var(--soft-blue);
+            font-family: var(--font-mono);
+        }
+        
+        .feed-message {
+            color: var(--muted-gray);
+            font-family: var(--font-mono);
+        }
+        
+        /* Enhanced Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 8px;
+            width: 520px;
+            max-width: 90%;
+            box-shadow: 
+                0 0 40px rgba(0, 246, 255, 0.4),
+                inset 0 0 20px rgba(0, 0, 0, 0.5);
+            animation: modal-appear 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+        }
+        
+        .modal-content.small {
+            width: 420px;
+        }
+        
+        @keyframes modal-appear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 25px;
+            border-bottom: 1px solid rgba(122, 0, 255, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header h3 {
+            font-family: var(--font-heading);
+            color: var(--neon-cyan);
+            font-size: 1.3rem;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--muted-gray);
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+        }
+        
+        .modal-close:hover {
+            color: var(--warning);
+            background: rgba(255, 74, 74, 0.1);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 18px 25px;
+            border-top: 1px solid rgba(122, 0, 255, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Enhanced Tooltips */
+        .tooltip {
+            position: absolute;
+            background: rgba(16, 16, 24, 0.95);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            padding: 10px 15px;
+            color: var(--muted-gray);
+            font-size: 0.9rem;
+            z-index: 100;
+            box-shadow: 
+                0 0 15px rgba(0, 246, 255, 0.4),
+                inset 0 0 10px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            max-width: 300px;
+        }
+        
+        .tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        
+        .tooltip[data-placement="top"] .tooltip-arrow {
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0 6px;
+            border-color: var(--neon-cyan) transparent transparent transparent;
+        }
+        
+        /* Enhanced Progress Bar */
+        .scan-progress {
+            margin-top: 12px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple-ui), var(--neon-cyan));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--soft-blue);
+            text-shadow: 0 0 5px rgba(92, 206, 255, 0.5);
+        }
+        
+        /* Enhanced Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple-ui);
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* Matrix Rain Effect Container */
+        #matrixRain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <!-- Matrix Rain Background -->
+    <canvas id="matrixRain"></canvas>
+    
+    <!-- Data Stream Effect -->
+    <div class="data-stream" id="dataStream"></div>
+
+    <!-- Enhanced Holographic Header -->
+    <header class="cyber-header">
+        <div class="header-content">
+            <h1 class="holographic-title">
+                <span class="glitch" data-text="CYBERPUNK">CYBERPUNK</span>
+                <span class="subtitle">NETWORK SECURITY DASHBOARD v2.0</span>
+            </h1>
+            <div class="system-status">
+                <div class="status-indicator" id="systemStatus">
+                    <div class="pulse-dot"></div>
+                    <span>SYSTEM ONLINE</span>
+                </div>
+                <div class="status-info">
+                    <span id="cpuUsage">CPU: 23%</span>
+                    <span id="memoryUsage">RAM: 67%</span>
+                    <span id="activeOps">OPS: 3</span>
+                </div>
+            </div>
+        </div>
+        <div class="scanning-line"></div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Enhanced Left Panel - Controls -->
+        <aside class="left-panel">
+            <div class="panel-section">
+                <h3 class="section-title">NETWORK SCANNING</h3>
+                <div class="control-group">
+                    <label for="ipRange">IP Range:</label>
+                    <input type="text" id="ipRange" value="192.168.1.0/24" class="cyber-input">
+                    <button id="scanNetwork" class="cyber-button primary">
+                        <span class="button-glow"></span>
+                        INITIATE NETWORK SCAN
+                    </button>
+                </div>
+                <div class="scan-progress" id="scanProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">Scanning Network...</span>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">NETWORK INTERFACES</h3>
+                <div class="interface-list" id="interfaceList">
+                    <div class="interface-item">
+                        <div class="interface-name">wlan0</div>
+                        <div class="interface-details">
+                            <span>MAC: 00:1A:2B:3C:4D:5E</span>
+                            <span>Channel: 6</span>
+                            <span>Mode: Managed</span>
+                        </div>
+                        <button class="monitor-toggle">Enable Monitor</button>
+                    </div>
+                    <div class="interface-item">
+                        <div class="interface-name">eth0</div>
+                        <div class="interface-details">
+                            <span>MAC: 00:1B:44:11:3A:B7</span>
+                            <span>Channel: N/A</span>
+                            <span>Mode: Up</span>
+                        </div>
+                        <button class="monitor-toggle">Enable Monitor</button>
+                    </div>
+                    <div class="interface-item">
+                        <div class="interface-name">wlan1</div>
+                        <div class="interface-details">
+                            <span>MAC: 00:1C:B3:09:85:15</span>
+                            <span>Channel: 11</span>
+                            <span>Mode: Monitor</span>
+                        </div>
+                        <button class="monitor-toggle active">Disable Monitor</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">ATTACK MODULES</h3>
+                <div class="attack-grid">
+                    <button class="attack-button" data-type="arp_spoofing">
+                        <div class="attack-icon">ARP</div>
+                        <span>ARP Spoofing</span>
+                    </button>
+                    <button class="attack-button" data-type="mitm">
+                        <div class="attack-icon">MITM</div>
+                        <span>Man-in-Middle</span>
+                    </button>
+                    <button class="attack-button" data-type="password_sniffing">
+                        <div class="attack-icon">PWD</div>
+                        <span>Password Sniff</span>
+                    </button>
+                    <button class="attack-button" data-type="syn_flood">
+                        <div class="attack-icon">SYN</div>
+                        <span>SYN Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="udp_flood">
+                        <div class="attack-icon">UDP</div>
+                        <span>UDP Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="icmp_flood">
+                        <div class="attack-icon">ICMP</div>
+                        <span>ICMP Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="http_flood">
+                        <div class="attack-icon">HTTP</div>
+                        <span>HTTP Flood</span>
+                    </button>
+                    <button class="attack-button" data-type="dns_spoofing">
+                        <div class="attack-icon">DNS</div>
+                        <span>DNS Spoof</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">ACTIVE OPERATIONS</h3>
+                <div class="operations-list" id="operationsList">
+                    <div class="operation-item">
+                        <div class="operation-header">
+                            <span class="operation-name">ARP Spoofing</span>
+                            <span class="operation-status">Active</span>
+                        </div>
+                        <div class="operation-details">Target: 192.168.1.105</div>
+                    </div>
+                    <div class="operation-item">
+                        <div class="operation-header">
+                            <span class="operation-name">Traffic Monitor</span>
+                            <span class="operation-status">Active</span>
+                        </div>
+                        <div class="operation-details">Interface: wlan1</div>
+                    </div>
+                    <div class="operation-item">
+                        <div class="operation-header">
+                            <span class="operation-name">Port Scan</span>
+                            <span class="operation-status">Completed</span>
+                        </div>
+                        <div class="operation-details">Range: 192.168.1.0/24</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Enhanced Center - 3D Network Map -->
+        <main class="center-panel">
+            <div class="network-map-container">
+                <canvas id="networkCanvas" class="network-canvas"></canvas>
+                <div class="map-overlay">
+                    <div class="map-controls">
+                        <button id="resetView" class="control-button">RESET VIEW</button>
+                        <button id="toggleWireframe" class="control-button">WIREFRAME</button>
+                        <button id="toggleLabels" class="control-button">LABELS</button>
+                        <button id="toggleParticles" class="control-button">PARTICLES</button>
+                    </div>
+                    <div class="map-info">
+                        <span id="deviceCount">Devices: 12</span>
+                        <span id="selectedDevice">Selected: Core Router (192.168.1.1)</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Enhanced Right Panel - Device Info -->
+        <aside class="right-panel">
+            <div class="panel-section">
+                <h3 class="section-title">DEVICE INFORMATION</h3>
+                <div class="device-info" id="deviceInfo">
+                    <div class="device-details">
+                        <div class="device-header">
+                            <span class="device-name">Core Router</span>
+                            <div class="device-status">
+                                <div class="status-dot"></div>
+                                <span>Online</span>
+                            </div>
+                        </div>
+                        <div class="device-properties">
+                            <div class="property">
+                                <span class="property-label">IP Address</span>
+                                <span class="property-value">192.168.1.1</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">MAC Address</span>
+                                <span class="property-value">AA:BB:CC:DD:EE:FF</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Vendor</span>
+                                <span class="property-value">Cisco Systems</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">OS</span>
+                                <span class="property-value">IOS 15.4</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Open Ports</span>
+                                <span class="property-value">22, 80, 443, 8080</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Last Seen</span>
+                                <span class="property-value">32 seconds ago</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Threat Level</span>
+                                <span class="property-value" style="color: var(--neon-cyan);">LOW</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Data Flow</span>
+                                <span class="property-value">1.2 GB/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">QUICK ACTIONS</h3>
+                <div class="action-buttons" id="actionButtons">
+                    <button class="action-button" id="startArpSpoof">
+                        <span class="action-icon">⚡</span>
+                        ARP Spoof
+                    </button>
+                    <button class="action-button" id="startMitm">
+                        <span class="action-icon">🎯</span>
+                        MITM Attack
+                    </button>
+                    <button class="action-button" id="startSniffing">
+                        <span class="action-icon">👁️</span>
+                        Monitor Traffic
+                    </button>
+                    <button class="action-button" id="startFlood">
+                        <span class="action-icon">💥</span>
+                        Flood Attack
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="section-title">SECURITY LOGS</h3>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry system">
+                        <span class="log-time">[12:45:23]</span>
+                        <span class="log-message">System initialized - Security protocols engaged</span>
+                    </div>
+                    <div class="log-entry success">
+                        <span class="log-time">[12:45:30]</span>
+                        <span class="log-message">Network scan completed - 12 devices found</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">[12:46:15]</span>
+                        <span class="log-message">ARP spoofing initiated on 192.168.1.105</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">[12:47:02]</span>
+                        <span class="log-message">Traffic monitoring started on wlan1</span>
+                    </div>
+                    <div class="log-entry warning">
+                        <span class="log-time">[12:48:11]</span>
+                        <span class="log-message">High CPU usage detected - Optimization recommended</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">[12:49:05]</span>
+                        <span class="log-message">New device detected: 192.168.1.112</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Enhanced Bottom Bar - Event Feed -->
+    <footer class="bottom-bar">
+        <div class="event-feed" id="eventFeed">
+            <div class="feed-item">
+                <span class="feed-time">[12:45:23]</span>
+                <span class="feed-message">Dashboard online - Security protocols engaged</span>
+            </div>
+            <div class="feed-item">
+                <span class="feed-time">[12:45:30]</span>
+                <span class="feed-message">Network scan completed - 12 devices found</span>
+            </div>
+            <div class="feed-item">
+                <span class="feed-time">[12:46:15]</span>
+                <span class="feed-message">ARP spoofing initiated on 192.168.1.105</span>
+            </div>
+            <div class="feed-item">
+                <span class="feed-time">[12:47:02]</span>
+                <span class="feed-message">Traffic monitoring started on wlan1</span>
+            </div>
+            <div class="feed-item">
+                <span class="feed-time">[12:49:05]</span>
+                <span class="feed-message">New device detected: 192.168.1.112</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Enhanced Attack Configuration Modal -->
+    <div class="modal-overlay" id="attackModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Configure ARP Spoofing</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="control-group">
+                    <label for="targetIp">Target IP:</label>
+                    <input type="text" id="targetIp" value="192.168.1.105" class="cyber-input">
+                </div>
+                <div class="control-group">
+                    <label for="gatewayIp">Gateway IP:</label>
+                    <input type="text" id="gatewayIp" value="192.168.1.1" class="cyber-input">
+                </div>
+                <div class="control-group">
+                    <label for="interface">Interface:</label>
+                    <select id="interface" class="cyber-input">
+                        <option value="wlan0">wlan0</option>
+                        <option value="wlan1" selected>wlan1</option>
+                        <option value="eth0">eth0</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="packetRate">Packet Rate (p/s):</label>
+                    <input type="range" id="packetRate" min="10" max="1000" value="100" class="cyber-input">
+                    <span id="packetRateValue">100 packets/second</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cyber-button secondary" id="modalCancel">CANCEL</button>
+                <button class="cyber-button primary" id="modalConfirm">EXECUTE ATTACK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Confirmation Dialog -->
+    <div class="modal-overlay" id="confirmModal" style="display: none;">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to initiate ARP Spoofing attack?</p>
+                <p style="color: var(--warning); margin-top: 10px; font-size: 0.9rem;">This action may disrupt network services and should only be performed on networks you are authorized to test.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="cyber-button secondary" id="confirmCancel">CANCEL</button>
+                <button class="cyber-button danger" id="confirmYes">CONFIRM & EXECUTE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Tooltips -->
+    <div class="tooltip" id="tooltip" style="display: none;">
+        <div class="tooltip-content"></div>
+        <div class="tooltip-arrow"></div>
+    </div>
+
+    <script>
+        // Matrix Rain Background
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('matrixRain');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const chars = "01010101010101010101010101010101";
+            const charArray = chars.split("");
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = [];
+            
+            for(let i = 0; i < columns; i++) {
+                drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
+            }
+            
+            function drawMatrix() {
+                ctx.fillStyle = "rgba(5, 5, 16, 0.04)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = var(--matrix-green);
+                ctx.font = `${fontSize}px monospace`;
+                
+                for(let i = 0; i < drops.length; i++) {
+                    const text = charArray[Math.floor(Math.random() * charArray.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(drawMatrix, 35);
+            
+            // Data Stream Effect
+            const dataStream = document.getElementById('dataStream');
+            function createStream() {
+                const stream = document.createElement('div');
+                stream.className = 'stream';
+                stream.style.left = Math.random() * 100 + 'vw';
+                stream.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                stream.style.height = (Math.random() * 100 + 50) + 'px';
+                dataStream.appendChild(stream);
+                
+                setTimeout(() => {
+                    stream.remove();
+                }, 5000);
+            }
+            
+            setInterval(createStream, 100);
+            
+            // Enhanced 3D Network Map Implementation
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('networkCanvas'), 
+                antialias: true,
+                alpha: true
+            });
+            
+            renderer.setSize(document.querySelector('.network-map-container').clientWidth, 
+                            document.querySelector('.network-map-container').clientHeight);
+            renderer.setClearColor(0x000000, 0);
+            
+            // Enhanced lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0x00F6FF, 1);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            const pointLight1 = new THREE.PointLight(0x00F6FF, 0.8, 100);
+            pointLight1.position.set(10, 10, 10);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0xFF00D4, 0.5, 100);
+            pointLight2.position.set(-10, -10, 10);
+            scene.add(pointLight2);
+            
+            const pointLight3 = new THREE.PointLight(0x7A00FF, 0.6, 100);
+            pointLight3.position.set(0, 0, 10);
+            scene.add(pointLight3);
+            
+            // Create different device types with unique appearances
+            const nodeTypes = {
+                router: { color: 0x00F6FF, size: 0.7, shape: 'box' },
+                server: { color: 0xFF00D4, size: 0.8, shape: 'cylinder' },
+                workstation: { color: 0x7A00FF, size: 0.5, shape: 'sphere' },
+                mobile: { color: 0x5CCEFF, size: 0.4, shape: 'sphere' },
+                iot: { color: 0x00FF41, size: 0.3, shape: 'sphere' }
+            };
+            
+            const nodes = [];
+            const nodeData = [
+                { type: 'router', name: 'Core Router', ip: '192.168.1.1' },
+                { type: 'server', name: 'File Server', ip: '192.168.1.10' },
+                { type: 'server', name: 'Web Server', ip: '192.168.1.20' },
+                { type: 'workstation', name: 'Admin PC', ip: '192.168.1.50' },
+                { type: 'workstation', name: 'Dev PC', ip: '192.168.1.51' },
+                { type: 'mobile', name: 'Mobile Device', ip: '192.168.1.105' },
+                { type: 'iot', name: 'Smart Device', ip: '192.168.1.200' },
+                { type: 'workstation', name: 'User PC', ip: '192.168.1.60' },
+                { type: 'mobile', name: 'Tablet', ip: '192.168.1.106' },
+                { type: 'iot', name: 'Camera', ip: '192.168.1.201' },
+                { type: 'workstation', name: 'Laptop', ip: '192.168.1.70' },
+                { type: 'iot', name: 'Printer', ip: '192.168.1.202' }
+            ];
+            
+            // Create device nodes with different geometries
+            nodeData.forEach((data, i) => {
+                const nodeType = nodeTypes[data.type];
+                let geometry;
+                
+                if (nodeType.shape === 'box') {
+                    geometry = new THREE.BoxGeometry(nodeType.size, nodeType.size, nodeType.size);
+                } else if (nodeType.shape === 'cylinder') {
+                    geometry = new THREE.CylinderGeometry(nodeType.size/2, nodeType.size/2, nodeType.size, 8);
+                } else {
+                    geometry = new THREE.SphereGeometry(nodeType.size, 16, 16);
+                }
+                
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: nodeType.color,
+                    shininess: 100,
+                    emissive: new THREE.Color(nodeType.color).multiplyScalar(0.2)
+                });
+                
+                const node = new THREE.Mesh(geometry, material);
+                
+                // Position nodes in a more network-like structure
+                const angle = (i / nodeData.length) * Math.PI * 2;
+                const radius = 6 + Math.random() * 4;
+                node.position.x = Math.cos(angle) * radius;
+                node.position.y = Math.sin(angle) * radius;
+                node.position.z = (Math.random() - 0.5) * 5;
+                
+                scene.add(node);
+                
+                // Store node data for interaction
+                node.userData = data;
+                nodes.push(node);
+                
+                // Add enhanced glow effect
+                const glowGeometry = new THREE.SphereGeometry(nodeType.size * 1.3, 16, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: nodeType.color,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                node.add(glow);
+                
+                // Add connection points
+                const pointGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+                const connectionPoint = new THREE.Mesh(pointGeometry, pointMaterial);
+                connectionPoint.position.set(0, 0, nodeType.size * 1.5);
+                node.add(connectionPoint);
+            });
+            
+            // Create enhanced connections with particles
+            const connections = [];
+            const connectionMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x7A00FF,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            // Create particle system for data flow
+            const particleCount = 200;
+            const particles = new THREE.BufferGeometry();
+            const particlePositions = new Float32Array(particleCount * 3);
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0x00F6FF,
+                size: 0.05,
+                transparent: true
+            });
+            
+            for (let i = 0; i < particleCount * 3; i++) {
+                particlePositions[i] = (Math.random() - 0.5) * 10;
+            }
+            
+            particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+            
+            // Create network connections
+            for (let i = 0; i < nodes.length; i++) {
+                // Connect to central router (index 0) and some random other nodes
+                if (i !== 0 && Math.random() < 0.7) {
+                    createConnection(nodes[0], nodes[i]);
+                }
+                
+                // Random connections between other nodes
+                for (let j = i + 1; j < nodes.length; j++) {
+                    if (i !== 0 && j !== 0 && Math.random() < 0.2) {
+                        createConnection(nodes[i], nodes[j]);
+                    }
+                }
+            }
+            
+            function createConnection(node1, node2) {
+                const points = [];
+                points.push(node1.position);
+                points.push(node2.position);
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(geometry, connectionMaterial);
+                scene.add(line);
+                connections.push({ line, node1, node2 });
+            }
+            
+            // Position camera
+            camera.position.z = 18;
+            camera.position.y = 5;
+            
+            // Add enhanced orbit controls
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.5;
+            controls.zoomSpeed = 0.8;
+            
+            // Raycaster for node interaction
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let selectedNode = null;
+            
+            // Handle node clicks
+            function onNodeClick(event) {
+                // Calculate mouse position in normalized device coordinates
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                
+                // Update the raycaster
+                raycaster.setFromCamera(mouse, camera);
+                
+                // Calculate objects intersecting the picking ray
+                const intersects = raycaster.intersectObjects(nodes);
+                
+                if (intersects.length > 0) {
+                    // Reset previous selection
+                    if (selectedNode) {
+                        selectedNode.material.emissive.setHex(selectedNode.userData.originalEmissive || 0x000000);
+                    }
+                    
+                    // Select new node
+                    selectedNode = intersects[0].object;
+                    selectedNode.userData.originalEmissive = selectedNode.material.emissive.getHex();
+                    selectedNode.material.emissive.setHex(0xFFFFFF);
+                    
+                    // Update device info panel
+                    updateDeviceInfo(selectedNode.userData);
+                }
+            }
+            
+            function updateDeviceInfo(deviceData) {
+                const deviceInfo = document.getElementById('deviceInfo');
+                deviceInfo.innerHTML = `
+                    <div class="device-details">
+                        <div class="device-header">
+                            <span class="device-name">${deviceData.name}</span>
+                            <div class="device-status">
+                                <div class="status-dot"></div>
+                                <span>Online</span>
+                            </div>
+                        </div>
+                        <div class="device-properties">
+                            <div class="property">
+                                <span class="property-label">IP Address</span>
+                                <span class="property-value">${deviceData.ip}</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Device Type</span>
+                                <span class="property-value">${deviceData.type.charAt(0).toUpperCase() + deviceData.type.slice(1)}</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Status</span>
+                                <span class="property-value" style="color: var(--neon-cyan);">Active</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Last Seen</span>
+                                <span class="property-value">Just now</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Threat Level</span>
+                                <span class="property-value" style="color: var(--neon-cyan);">LOW</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Data Flow</span>
+                                <span class="property-value">${(Math.random() * 2).toFixed(1)} MB/s</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('selectedDevice').textContent = `Selected: ${deviceData.name} (${deviceData.ip})`;
+            }
+            
+            // Add event listener for node clicks
+            renderer.domElement.addEventListener('click', onNodeClick);
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Rotate nodes with different speeds based on type
+                nodes.forEach((node, index) => {
+                    const speed = 0.01 + (index % 3) * 0.005;
+                    node.rotation.x += speed;
+                    node.rotation.y += speed;
+                    
+                    // Pulsate glow effect
+                    const glow = node.children[0];
+                    const pulse = 1 + 0.2 * Math.sin(Date.now() * 0.001 + index);
+                    glow.scale.set(pulse, pulse, pulse);
+                });
+                
+                // Animate particles
+                const positions = particleSystem.geometry.attributes.position.array;
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    positions[i] += (Math.random() - 0.5) * 0.02;
+                    positions[i + 1] += (Math.random() - 0.5) * 0.02;
+                    positions[i + 2] += (Math.random() - 0.5) * 0.02;
+                    
+                    // Reset particles that go too far
+                    if (Math.abs(positions[i]) > 10 || Math.abs(positions[i + 1]) > 10 || Math.abs(positions[i + 2]) > 10) {
+                        positions[i] = (Math.random() - 0.5) * 10;
+                        positions[i + 1] = (Math.random() - 0.5) * 10;
+                        positions[i + 2] = (Math.random() - 0.5) * 10;
+                    }
+                }
+                particleSystem.geometry.attributes.position.needsUpdate = true;
+                
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const container = document.querySelector('.network-map-container');
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                
+                // Update matrix rain canvas
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            
+            // Enhanced UI Interactions
+            document.getElementById('resetView').addEventListener('click', function() {
+                controls.reset();
+            });
+            
+            document.getElementById('toggleWireframe').addEventListener('click', function() {
+                nodes.forEach(node => {
+                    node.material.wireframe = !node.material.wireframe;
+                });
+                this.classList.toggle('active');
+            });
+            
+            document.getElementById('toggleLabels').addEventListener('click', function() {
+                // This would toggle labels in a real implementation
+                this.classList.toggle('active');
+            });
+            
+            document.getElementById('toggleParticles').addEventListener('click', function() {
+                particleSystem.visible = !particleSystem.visible;
+                this.classList.toggle('active');
+            });
+            
+            // Enhanced monitor mode toggle
+            document.querySelectorAll('.monitor-toggle').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const interfaceName = this.closest('.interface-item').querySelector('.interface-name').textContent;
+                    const action = this.classList.contains('active') ? 'enabled' : 'disabled';
+                    
+                    this.textContent = this.classList.contains('active') ? 'Disable Monitor' : 'Enable Monitor';
+                    
+                    // Add log entry
+                    const logContainer = document.getElementById('logContainer');
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry success';
+                    logEntry.innerHTML = `
+                        <span class="log-time">[${new Date().toLocaleTimeString()}]</span>
+                        <span class="log-message">Monitor mode ${action} on ${interfaceName}</span>
+                    `;
+                    logContainer.appendChild(logEntry);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                });
+            });
+            
+            // Enhanced attack button interactions
+            document.querySelectorAll('.attack-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const attackType = this.getAttribute('data-type');
+                    const attackName = this.querySelector('span').textContent;
+                    document.getElementById('modalTitle').textContent = `Configure ${attackName}`;
+                    document.getElementById('attackModal').style.display = 'flex';
+                    
+                    // Update modal content based on attack type
+                    if (attackType === 'arp_spoofing') {
+                        document.getElementById('modalBody').innerHTML = `
+                            <div class="control-group">
+                                <label for="targetIp">Target IP:</label>
+                                <input type="text" id="targetIp" value="192.168.1.105" class="cyber-input">
+                            </div>
+                            <div class="control-group">
+                                <label for="gatewayIp">Gateway IP:</label>
+                                <input type="text" id="gatewayIp" value="192.168.1.1" class="cyber-input">
+                            </div>
+                            <div class="control-group">
+                                <label for="interface">Interface:</label>
+                                <select id="interface" class="cyber-input">
+                                    <option value="wlan0">wlan0</option>
+                                    <option value="wlan1" selected>wlan1</option>
+                                    <option value="eth0">eth0</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="packetRate">Packet Rate (p/s):</label>
+                                <input type="range" id="packetRate" min="10" max="1000" value="100" class="cyber-input">
+                                <span id="packetRateValue">100 packets/second</span>
+                            </div>
+                        `;
+                        
+                        // Update packet rate display
+                        document.getElementById('packetRate').addEventListener('input', function() {
+                            document.getElementById('packetRateValue').textContent = this.value + ' packets/second';
+                        });
+                    }
+                });
+            });
+            
+            // Enhanced modal interactions
+            document.getElementById('modalClose').addEventListener('click', function() {
+                document.getElementById('attackModal').style.display = 'none';
+            });
+            
+            document.getElementById('modalCancel').addEventListener('click', function() {
+                document.getElementById('attackModal').style.display = 'none';
+            });
+            
+            document.getElementById('modalConfirm').addEventListener('click', function() {
+                document.getElementById('attackModal').style.display = 'none';
+                document.getElementById('confirmMessage').textContent = 'Are you sure you want to initiate this attack?';
+                document.getElementById('confirmModal').style.display = 'flex';
+            });
+            
+            document.getElementById('confirmCancel').addEventListener('click', function() {
+                document.getElementById('confirmModal').style.display = 'none';
+            });
+            
+            document.getElementById('confirmYes').addEventListener('click', function() {
+                document.getElementById('confirmModal').style.display = 'none';
+                
+                // Add to operations list
+                const operationsList = document.getElementById('operationsList');
+                const operationItem = document.createElement('div');
+                operationItem.className = 'operation-item';
+                operationItem.innerHTML = `
+                    <div class="operation-header">
+                        <span class="operation-name">ARP Spoofing</span>
+                        <span class="operation-status">Active</span>
+                    </div>
+                    <div class="operation-details">Target: 192.168.1.105</div>
+                `;
+                operationsList.appendChild(operationItem);
+                
+                // Update active operations count
+                document.getElementById('activeOps').textContent = `OPS: ${operationsList.children.length}`;
+                
+                // Add log entry
+                const logContainer = document.getElementById('logContainer');
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry success';
+                logEntry.innerHTML = `
+                    <span class="log-time">[${new Date().toLocaleTimeString()}]</span>
+                    <span class="log-message">ARP spoofing attack initiated successfully on 192.168.1.105</span>
+                `;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            });
+            
+            // Enhanced network scan simulation
+            document.getElementById('scanNetwork').addEventListener('click', function() {
+                const progress = document.getElementById('scanProgress');
+                const progressFill = progress.querySelector('.progress-fill');
+                progress.style.display = 'block';
+                
+                let width = 0;
+                const interval = setInterval(function() {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        progress.querySelector('.progress-text').textContent = 'Network Scan Complete';
+                        
+                        // Add log entry
+                        const logContainer = document.getElementById('logContainer');
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'log-entry success';
+                        logEntry.innerHTML = `
+                            <span class="log-time">[${new Date().toLocaleTimeString()}]</span>
+                            <span class="log-message">Network scan completed - 12 devices discovered</span>
+                        `;
+                        logContainer.appendChild(logEntry);
+                        logContainer.scrollTop = logContainer.scrollHeight;
+                        
+                        // Update device count
+                        document.getElementById('deviceCount').textContent = 'Devices: 12';
+                    } else {
+                        width += 2;
+                        progressFill.style.width = width + '%';
+                    }
+                }, 50);
+            });
+            
+            // Initialize with router selected
+            if (nodes.length > 0) {
+                updateDeviceInfo(nodes[0].userData);
+            }
+        });
+    </script>
+</body>
+</html>
